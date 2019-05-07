@@ -1,0 +1,243 @@
+fileFormatVersion: 2
+guid: a857d2965b753448681749bdb6d675d7
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Alfombra
+    100002: Hierro
+    100004: Lienzo
+    100006: Madera
+    100008: Madera (cruz)
+    100010: Marco puerta
+    100012: Marmol
+    100014: Marmol (2)
+    100016: Metal (antorcha)
+    100018: Metal (cruz)
+    100020: Metal decorativo
+    100022: Muros
+    100024: Oro
+    100026: Pared (zona ataud)
+    100028: Puerta
+    100030: Quemador (antorcha)
+    100032: //RootNode
+    100034: Suelo
+    100036: Techo
+    100038: Tela
+    100040: Terciopelo
+    100042: Terreno
+    100044: Vidriera
+    400000: Alfombra
+    400002: Hierro
+    400004: Lienzo
+    400006: Madera
+    400008: Madera (cruz)
+    400010: Marco puerta
+    400012: Marmol
+    400014: Marmol (2)
+    400016: Metal (antorcha)
+    400018: Metal (cruz)
+    400020: Metal decorativo
+    400022: Muros
+    400024: Oro
+    400026: Pared (zona ataud)
+    400028: Puerta
+    400030: Quemador (antorcha)
+    400032: //RootNode
+    400034: Suelo
+    400036: Techo
+    400038: Tela
+    400040: Terciopelo
+    400042: Terreno
+    400044: Vidriera
+    2100000: Hierro
+    2100002: FrontCol
+    2100004: Metal_de
+    2100006: Madera
+    2100008: Terciope
+    2100010: Quemador
+    2100012: Metal__a
+    2100014: Muros
+    2100016: Techo
+    2100018: Oro
+    2100020: Tela
+    2100022: Madera__
+    2100024: Marmol
+    2100026: Metal__c
+    2100028: Marmol__
+    2100030: Vidrio__
+    2100032: Lienzo
+    2100034: Madera01
+    2100036: Alfombra
+    2100038: Pared__z
+    2100040: Marco_en
+    2100042: Suelo
+    2100044: Granito
+    2100046: Terreno
+    2300000: Alfombra
+    2300002: Hierro
+    2300004: Lienzo
+    2300006: Madera
+    2300008: Madera (cruz)
+    2300010: Marco puerta
+    2300012: Marmol
+    2300014: Marmol (2)
+    2300016: Metal (antorcha)
+    2300018: Metal (cruz)
+    2300020: Metal decorativo
+    2300022: Muros
+    2300024: Oro
+    2300026: Pared (zona ataud)
+    2300028: Puerta
+    2300030: Quemador (antorcha)
+    2300032: Suelo
+    2300034: Techo
+    2300036: Tela
+    2300038: Terciopelo
+    2300040: Terreno
+    2300042: Vidriera
+    3300000: Alfombra
+    3300002: Hierro
+    3300004: Lienzo
+    3300006: Madera
+    3300008: Madera (cruz)
+    3300010: Marco puerta
+    3300012: Marmol
+    3300014: Marmol (2)
+    3300016: Metal (antorcha)
+    3300018: Metal (cruz)
+    3300020: Metal decorativo
+    3300022: Muros
+    3300024: Oro
+    3300026: Pared (zona ataud)
+    3300028: Puerta
+    3300030: Quemador (antorcha)
+    3300032: Suelo
+    3300034: Techo
+    3300036: Tela
+    3300038: Terciopelo
+    3300040: Terreno
+    3300042: Vidriera
+    4300000: Hierro
+    4300002: Metal decorativo
+    4300004: Madera
+    4300006: Terciopelo
+    4300008: Quemador (antorcha)
+    4300010: Metal (antorcha)
+    4300012: Muros
+    4300014: Techo
+    4300016: Oro
+    4300018: Tela
+    4300020: Madera (cruz)
+    4300022: Marmol
+    4300024: Metal (cruz)
+    4300026: Marmol (2)
+    4300028: Vidriera
+    4300030: Lienzo
+    4300032: Puerta
+    4300034: Alfombra
+    4300036: Pared (zona ataud)
+    4300038: Marco puerta
+    4300040: Suelo
+    4300042: Terreno
+    2186277476908879412: ImportLogs
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Alfombra
+    second: {fileID: 2100000, guid: 9893b22e141ab44759b67137a784e210, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Granito
+    second: {fileID: 2100000, guid: 20e1179dbe4474b039ac5c88e228fea4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hierro
+    second: {fileID: 2100000, guid: ff9b7dcaa81764792ad720851d798bac, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lienzo
+    second: {fileID: 2100000, guid: ee61deb7dac124cb7ae6d65b93b44528, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
