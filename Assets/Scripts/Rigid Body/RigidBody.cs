@@ -5,8 +5,11 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Class responsible of cloth simulation. Works on planes.
+/// Class responsible of rigidbody simulation.
 /// </summary>
+/// <remarks>
+/// If no .mesh file is provided, the object is destroyed.
+/// </remarks>
 public class RigidBody : MonoBehaviour {
 
 	public TextAsset dotMeshFile;
@@ -14,19 +17,19 @@ public class RigidBody : MonoBehaviour {
 
 	private bool initialized = false;
 	private Mesh mesh;
-	private Dictionary<Vector3, Node> nodes;
-	private Dictionary<Spring, Spring> springs;
-	private HashSet<NodeTriangle> triangles;
+	private Dictionary<Vector3, RigidBodyNode> nodes;
+	private Dictionary<RigidBodySpring, RigidBodySpring> springs;
+	private HashSet<RigidBodyNodeTriangle> triangles;
 	private List<Tetrahedron> tetrahedrons;
 	private List<GameObject> fixers;
 	private List<GameObject> penaltyEntities;
 
 	/// <summary>
-	/// On game start, initializes the data structures.
+	/// On game start, initialize the data structures.
 	/// </summary>
 	void Awake () {
 		if (dotMeshFile == null) {
-			Debug.LogError("No .mesh file found on gameobject \"" + gameObject.name + "\". Destroying gameobject.");
+			Debug.LogError ("[RigidBody.cs]: No .mesh file found on gameobject \"" + gameObject.name + "\". Destroying gameobject.");
 			GameObject.Destroy (gameObject);
 		}
 
@@ -57,7 +60,7 @@ public class RigidBody : MonoBehaviour {
 
 		Initialize ();
 
-		string debug = String.Format ("{0} (RigidBody) => Nodes: {1}; Springs: {2}; Triangles: {3}; Tetrahedrons: {4}",
+		string debug = String.Format ("{0} [RigidBody.cs] => Nodes: {1}; Springs: {2}; Triangles: {3}; Tetrahedrons: {4}",
 			gameObject.name, nodes.Count, springs.Count, triangles.Count, tetrahedrons.Count);
 		Debug.LogWarning (debug);
 
@@ -86,21 +89,16 @@ public class RigidBody : MonoBehaviour {
 			return;
 		}
 
-		foreach (Tetrahedron t in tetrahedrons) {
-			Gizmos.color = Color.blue;
-			Gizmos.DrawLine (t.n1.pos, t.n2.pos);
-			Gizmos.DrawLine (t.n1.pos, t.n3.pos);
-			Gizmos.DrawLine (t.n1.pos, t.n4.pos);
-			Gizmos.DrawLine (t.n2.pos, t.n3.pos);
-			Gizmos.DrawLine (t.n2.pos, t.n4.pos);
-			Gizmos.DrawLine (t.n3.pos, t.n4.pos);
-
-			Gizmos.color = Color.green;
-			Gizmos.DrawSphere (t.n1.pos, 0.05f);
-			Gizmos.DrawSphere (t.n2.pos, 0.05f);
-			Gizmos.DrawSphere (t.n3.pos, 0.05f);
-			Gizmos.DrawSphere (t.n4.pos, 0.05f);
+		Gizmos.color = Color.blue;
+		foreach (Spring spring in springs.Keys) {
+			Gizmos.DrawLine (spring.nodeA.pos, spring.nodeB.pos);
 		}
+
+		Gizmos.color = Color.green;
+		foreach (Node n in nodes.Values) {
+			Gizmos.DrawSphere (n.pos, 0.05f);
+		}
+
 	}
 
 	/// <summary>
@@ -151,8 +149,8 @@ public class RigidBody : MonoBehaviour {
 	private void StepExplicit () {
 		ComputeForces ();
 
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
-			Node node = entry.Value;
+		foreach (KeyValuePair<Vector3, RigidBodyNode> entry in nodes) {
+			RigidBodyNode node = entry.Value;
 			if (!node.isFixed) {
 				node.pos += simParams.timeStep * node.vel;
 				node.vel = CalculateImplicitVelocity (node);
@@ -166,8 +164,8 @@ public class RigidBody : MonoBehaviour {
 	private void StepSymplectic () {
 		ComputeForces ();
 
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
-			Node node = entry.Value;
+		foreach (KeyValuePair<Vector3, RigidBodyNode> entry in nodes) {
+			RigidBodyNode node = entry.Value;
 			if (!node.isFixed) {
 				node.vel = CalculateImplicitVelocity (node);
 				node.pos += simParams.timeStep * node.vel;
@@ -175,9 +173,8 @@ public class RigidBody : MonoBehaviour {
 		}
 	}
 
-	private Vector3 CalculateImplicitVelocity (Node n) {
-		float mass = ((RigidBodyNode)n).mass;
-		Vector3 v = n.vel + (simParams.timeStep / mass) * n.force;
+	private Vector3 CalculateImplicitVelocity (RigidBodyNode n) {
+		Vector3 v = n.vel + (simParams.timeStep / n.mass) * n.force;
 		Matrix4x4 dF_dx = n.dF_dx;
 
 		if (dF_dx.Equals (Matrix4x4.zero)) {
@@ -185,7 +182,7 @@ public class RigidBody : MonoBehaviour {
 		}
 
 		Matrix4x4 I = Matrix4x4.identity;
-		float H = Mathf.Pow (simParams.timeStep, 2.0f) / mass;
+		float H = Mathf.Pow (simParams.timeStep, 2.0f) / n.mass;
 
 		dF_dx.SetRow (0, dF_dx.GetRow (0) * H);
 		dF_dx.SetRow (1, dF_dx.GetRow (1) * H);
@@ -207,7 +204,7 @@ public class RigidBody : MonoBehaviour {
 	/// Calculates the forces affecting the tetrahedrons mesh.
 	/// </summary>
 	private void ComputeForces () {
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
+		foreach (KeyValuePair<Vector3, RigidBodyNode> entry in nodes) {
 			Node n = entry.Value;
 			if (!n.isFixed) {
 				n.Reset ();
@@ -280,7 +277,7 @@ public class RigidBody : MonoBehaviour {
 	/// A list containing the vertices of the tretahedron mesh.
 	/// </param>
 	private void InitializeVertices (List<DotMeshField> tetraVertices) {
-		nodes = new Dictionary<Vector3, Node> (tetraVertices.Count);
+		nodes = new Dictionary<Vector3, RigidBodyNode> (tetraVertices.Count);
 		for (int i = 0; i < tetraVertices.Count; ++i) {
 			DotMeshVertex v = (DotMeshVertex) tetraVertices[i];
 
@@ -301,7 +298,7 @@ public class RigidBody : MonoBehaviour {
 	/// A list containing the vertices of the tretahedron mesh.
 	/// </param>
 	private void InitializeTriangles (List<DotMeshField> tetraTriangles, List<DotMeshField> tetraVertices) {
-		triangles = new HashSet<NodeTriangle> ();
+		triangles = new HashSet<RigidBodyNodeTriangle> ();
 
 		for (int i = 0; i < tetraTriangles.Count; ++i) {
 			DotMeshTriangle t = (DotMeshTriangle) tetraTriangles[i];
@@ -312,9 +309,9 @@ public class RigidBody : MonoBehaviour {
 				DotMeshVertex v2 = (DotMeshVertex) tetraVertices[t.v2 - 1];
 				DotMeshVertex v3 = (DotMeshVertex) tetraVertices[t.v3 - 1];
 
-				Node n1 = nodes[new Vector3 (v1.v1Pos, v1.v2Pos, v1.v3Pos)];
-				Node n2 = nodes[new Vector3 (v2.v1Pos, v2.v2Pos, v2.v3Pos)];
-				Node n3 = nodes[new Vector3 (v3.v1Pos, v3.v2Pos, v3.v3Pos)];
+				RigidBodyNode n1 = nodes[new Vector3 (v1.v1Pos, v1.v2Pos, v1.v3Pos)];
+				RigidBodyNode n2 = nodes[new Vector3 (v2.v1Pos, v2.v2Pos, v2.v3Pos)];
+				RigidBodyNode n3 = nodes[new Vector3 (v3.v1Pos, v3.v2Pos, v3.v3Pos)];
 
 				triangles.Add (new RigidBodyNodeTriangle (n1, n2, n3, simParams));
 			}
@@ -331,7 +328,7 @@ public class RigidBody : MonoBehaviour {
 	/// A list containing the vertices of the tretahedron mesh.
 	/// </param>
 	private void InitializeTetrahedrons (List<DotMeshField> tetraTetrahedrons, List<DotMeshField> tetraVertices) {
-		springs = new Dictionary<Spring, Spring> (tetraTetrahedrons.Count >> 1);
+		springs = new Dictionary<RigidBodySpring, RigidBodySpring> (tetraTetrahedrons.Count >> 1);
 		tetrahedrons = new List<Tetrahedron> (tetraTetrahedrons.Count);
 
 		for (int i = 0; i < tetraTetrahedrons.Count; ++i) {
@@ -342,16 +339,16 @@ public class RigidBody : MonoBehaviour {
 			DotMeshVertex v3 = (DotMeshVertex) tetraVertices[t.v3 - 1];
 			DotMeshVertex v4 = (DotMeshVertex) tetraVertices[t.v4 - 1];
 
-			RigidBodyNode n1 = (RigidBodyNode)nodes[new Vector3 (v1.v1Pos, v1.v2Pos, v1.v3Pos)];
-			RigidBodyNode n2 = (RigidBodyNode)nodes[new Vector3 (v2.v1Pos, v2.v2Pos, v2.v3Pos)];
-			RigidBodyNode n3 = (RigidBodyNode)nodes[new Vector3 (v3.v1Pos, v3.v2Pos, v3.v3Pos)];
-			RigidBodyNode n4 = (RigidBodyNode)nodes[new Vector3 (v4.v1Pos, v4.v2Pos, v4.v3Pos)];
+			RigidBodyNode n1 = nodes[new Vector3 (v1.v1Pos, v1.v2Pos, v1.v3Pos)];
+			RigidBodyNode n2 = nodes[new Vector3 (v2.v1Pos, v2.v2Pos, v2.v3Pos)];
+			RigidBodyNode n3 = nodes[new Vector3 (v3.v1Pos, v3.v2Pos, v3.v3Pos)];
+			RigidBodyNode n4 = nodes[new Vector3 (v4.v1Pos, v4.v2Pos, v4.v3Pos)];
 
 			Tetrahedron tetrahedron = new Tetrahedron (n1, n2, n3, n4, simParams);
 			tetrahedrons.Add (tetrahedron);
 
 			float springVolume = tetrahedron.volume / 6.0f;
-			Spring[] tetrahedronSprings = new Spring[] {
+			RigidBodySpring[] tetrahedronSprings = new RigidBodySpring[] {
 				new RigidBodySpring (n1, n2, springVolume, simParams),
 					new RigidBodySpring (n1, n3, springVolume, simParams),
 					new RigidBodySpring (n1, n4, springVolume, simParams),
@@ -360,9 +357,9 @@ public class RigidBody : MonoBehaviour {
 					new RigidBodySpring (n3, n4, springVolume, simParams)
 			};
 
-			foreach (Spring s in tetrahedronSprings) {
+			foreach (RigidBodySpring s in tetrahedronSprings) {
 				if (springs.ContainsKey (s)) {
-					((RigidBodySpring)springs[s]).volume += springVolume;
+					springs[s].volume += springVolume;
 				} else {
 					springs.Add (s, s);
 				}
@@ -439,7 +436,7 @@ public class RigidBody : MonoBehaviour {
 	/// Prints in Unity's console the cloth's nodes.
 	/// </summary>
 	private void DebugNodes () {
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
+		foreach (KeyValuePair<Vector3, RigidBodyNode> entry in nodes) {
 			Debug.Log (entry.Value);
 		}
 	}
@@ -448,7 +445,7 @@ public class RigidBody : MonoBehaviour {
 	/// Prints in Unity's console the cloth's springs.
 	/// </summary>
 	private void DebugSprings () {
-		foreach (Spring s in springs.Values) {
+		foreach (RigidBodySpring s in springs.Values) {
 			Debug.Log (s);
 		}
 	}
@@ -457,7 +454,7 @@ public class RigidBody : MonoBehaviour {
 	/// Prints in Unity's console the cloth's triangles.
 	/// </summary>
 	private void DebugTriangles () {
-		foreach (NodeTriangle t in triangles) {
+		foreach (RigidBodyNodeTriangle t in triangles) {
 			Debug.Log (t);
 		}
 	}

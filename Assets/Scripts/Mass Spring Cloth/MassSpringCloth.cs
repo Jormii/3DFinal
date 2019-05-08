@@ -11,11 +11,11 @@ public class MassSpringCloth : MonoBehaviour {
 
 	private bool initialized = false;
 	private Mesh mesh;
-	private Dictionary<Vector3, Node> nodes;
-	private HashSet<Spring> springs;
-	private HashSet<NodeTriangle> triangles;
+	private Dictionary<Vector3, ClothNode> nodes;
+	private HashSet<ClothSpring> springs;
+	private HashSet<ClothNodeTriangle> triangles;
 	private Dictionary<Edge<int>, int> edgesFlexionSprings;
-	private Dictionary<Edge<int>, NodeTriangle> edgesFlexion;
+	private Dictionary<Edge<int>, ClothNodeTriangle> edgesFlexion;
 	private List<GameObject> fixers;
 	private List<GameObject> penaltyEntities;
 
@@ -26,11 +26,11 @@ public class MassSpringCloth : MonoBehaviour {
 		mesh = GetComponent<MeshFilter> ().mesh;
 		mesh.MarkDynamic ();
 
-		nodes = new Dictionary<Vector3, Node> (mesh.vertexCount);
-		springs = new HashSet<Spring> ();
-		triangles = new HashSet<NodeTriangle> ();
+		nodes = new Dictionary<Vector3, ClothNode> (mesh.vertexCount);
+		springs = new HashSet<ClothSpring> ();
+		triangles = new HashSet<ClothNodeTriangle> ();
 		edgesFlexionSprings = new Dictionary<Edge<int>, int> ();
-		edgesFlexion = new Dictionary<Edge<int>, NodeTriangle> ();
+		edgesFlexion = new Dictionary<Edge<int>, ClothNodeTriangle> ();
 		fixers = new List<GameObject> ();
 		penaltyEntities = new List<GameObject> ();
 	}
@@ -55,7 +55,7 @@ public class MassSpringCloth : MonoBehaviour {
 
 		Initialize ();
 
-		Debug.LogWarning (gameObject.name + " (MassSpringCloth) => Nodes: " + nodes.Count + " Springs: " + springs.Count +
+		Debug.LogWarning (gameObject.name + " [MassSpringCloth.cs] => Nodes: " + nodes.Count + " Springs: " + springs.Count +
 			" Triangles: " + triangles.Count);
 
 		if (simParams.debugNodes) {
@@ -80,8 +80,8 @@ public class MassSpringCloth : MonoBehaviour {
 		}
 
 		Vector3[] newPositions = mesh.vertices;
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
-			Node n = entry.Value;
+		foreach (KeyValuePair<Vector3, ClothNode> entry in nodes) {
+			ClothNode n = entry.Value;
 			Vector3 local = transform.InverseTransformPoint (n.pos);
 			foreach (int id in n.nodeIds) {
 				newPositions[id] = local;
@@ -118,12 +118,12 @@ public class MassSpringCloth : MonoBehaviour {
 	private void StepExplicit () {
 		ComputeForces ();
 
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
-			Node node = entry.Value;
+		foreach (KeyValuePair<Vector3, ClothNode> entry in nodes) {
+			ClothNode node = entry.Value;
 			if (!node.isFixed) {
 				node.pos += simParams.timeStep * node.vel;
 				node.vel += CalculateImplicitVelocity (node);
-				((ClothNode) node).normal = transform.TransformVector (mesh.normals[node.nodeIds[0]]);
+				node.normal = transform.TransformVector (mesh.normals[node.nodeIds[0]]);
 			}
 		}
 	}
@@ -134,19 +134,18 @@ public class MassSpringCloth : MonoBehaviour {
 	private void StepSymplectic () {
 		ComputeForces ();
 
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
-			Node node = entry.Value;
+		foreach (KeyValuePair<Vector3, ClothNode> entry in nodes) {
+			ClothNode node = entry.Value;
 			if (!node.isFixed) {
 				node.vel = CalculateImplicitVelocity (node);
 				node.pos += simParams.timeStep * node.vel;
-				((ClothNode) node).normal = transform.TransformVector (mesh.normals[node.nodeIds[0]]);
+				node.normal = transform.TransformVector (mesh.normals[node.nodeIds[0]]);
 			}
 		}
 	}
 
 	private Vector3 CalculateImplicitVelocity (Node n) {
-		float nodeMass = ((ClothSimulationParameters) simParams).nodeMass;
-		Vector3 v = n.vel + (simParams.timeStep / nodeMass) * n.force;
+		Vector3 v = n.vel + (simParams.timeStep / simParams.nodeMass) * n.force;
 		Matrix4x4 dF_dx = n.dF_dx;
 
 		if (dF_dx.Equals (Matrix4x4.zero)) {
@@ -154,7 +153,7 @@ public class MassSpringCloth : MonoBehaviour {
 		}
 
 		Matrix4x4 I = Matrix4x4.identity;
-		float H = Mathf.Pow (simParams.timeStep, 2.0f) / nodeMass;
+		float H = Mathf.Pow (simParams.timeStep, 2.0f) / simParams.nodeMass;
 
 		dF_dx.SetRow (0, dF_dx.GetRow (0) * H);
 		dF_dx.SetRow (1, dF_dx.GetRow (1) * H);
@@ -176,7 +175,7 @@ public class MassSpringCloth : MonoBehaviour {
 	/// Calculates the forces affecting the cloth.
 	/// </summary>
 	private void ComputeForces () {
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
+		foreach (KeyValuePair<Vector3, ClothNode> entry in nodes) {
 			Node n = entry.Value;
 			if (!n.isFixed) {
 				n.Reset ();
@@ -210,7 +209,7 @@ public class MassSpringCloth : MonoBehaviour {
 		for (int i = 0; i < verticesIds.Length; i += 3) {
 			// Inicializacion del triangulo
 			int[] vertices = { verticesIds[i], verticesIds[i + 1], verticesIds[i + 2] };
-			Node[] vNodes = new Node[3];
+			ClothNode[] vNodes = new ClothNode[3];
 
 			// Inicializacion de los nodos
 			for (int j = 0; j < 3; ++j) {
@@ -226,7 +225,7 @@ public class MassSpringCloth : MonoBehaviour {
 			}
 
 			// Inicializacion del triangulo de nodos
-			NodeTriangle tn = new ClothNodeTriangle (vNodes[0], vNodes[1], vNodes[2], (ClothSimulationParameters) simParams);
+			ClothNodeTriangle tn = new ClothNodeTriangle (vNodes[0], vNodes[1], vNodes[2], (ClothSimulationParameters) simParams);
 			triangles.Add (tn);
 
 			// Comprobacion de aristas ya existentes y creacion de los muelles de flexion
@@ -234,9 +233,9 @@ public class MassSpringCloth : MonoBehaviour {
 			CheckExistingEdges (t, tn, verticesPos);
 
 			// Inicializacion de los muelles
-			springs.Add (new ClothSpring (tn.n1, tn.n2, false, simParams));
-			springs.Add (new ClothSpring (tn.n1, tn.n3, false, simParams));
-			springs.Add (new ClothSpring (tn.n2, tn.n3, false, simParams));
+			springs.Add (new ClothSpring ((ClothNode)tn.n1, (ClothNode)tn.n2, false, simParams));
+			springs.Add (new ClothSpring ((ClothNode)tn.n1, (ClothNode)tn.n3, false, simParams));
+			springs.Add (new ClothSpring ((ClothNode)tn.n2, (ClothNode)tn.n3, false, simParams));
 		}
 
 		initialized = true;
@@ -259,7 +258,7 @@ public class MassSpringCloth : MonoBehaviour {
 	/// An array containing the positions of the vertices of the mesh.
 	/// </param>
 
-	private void CheckExistingEdges (Triangle t, NodeTriangle tn, Vector3[] verticesPos) {
+	private void CheckExistingEdges (Triangle t, ClothNodeTriangle tn, Vector3[] verticesPos) {
 		foreach (Edge<int> e in t.edges) {
 			switch (simParams.flexionSimulation) {
 				case ClothSimulationParameters.FlexionSimulation.Springs:
@@ -269,8 +268,8 @@ public class MassSpringCloth : MonoBehaviour {
 						int flexionV1 = e.other;
 						int flexionV2 = edgesFlexionSprings[e];
 
-						Node nA = nodes[transform.TransformPoint (verticesPos[flexionV1])];
-						Node nB = nodes[transform.TransformPoint (verticesPos[flexionV2])];
+						ClothNode nA = nodes[transform.TransformPoint (verticesPos[flexionV1])];
+						ClothNode nB = nodes[transform.TransformPoint (verticesPos[flexionV2])];
 						springs.Add (new ClothSpring (nA, nB, true, simParams));
 					}
 					break;
@@ -279,10 +278,10 @@ public class MassSpringCloth : MonoBehaviour {
 					if (!edgesFlexion.ContainsKey (e)) {
 						edgesFlexion.Add (e, tn);
 					} else {
-						NodeTriangle neighbour = edgesFlexion[e];
+						ClothNodeTriangle neighbour = edgesFlexion[e];
 
-						((ClothNodeTriangle) tn).AddNeighbour (neighbour);
-						((ClothNodeTriangle) neighbour).AddNeighbour (tn);
+						tn.AddNeighbour (neighbour);
+						neighbour.AddNeighbour (tn);
 					}
 					break;
 			}
@@ -316,7 +315,7 @@ public class MassSpringCloth : MonoBehaviour {
 	/// Prints in Unity's console the cloth's nodes.
 	/// </summary>
 	private void DebugNodes () {
-		foreach (KeyValuePair<Vector3, Node> entry in nodes) {
+		foreach (KeyValuePair<Vector3, ClothNode> entry in nodes) {
 			Debug.Log (entry.Value);
 		}
 	}
@@ -325,7 +324,7 @@ public class MassSpringCloth : MonoBehaviour {
 	/// Prints in Unity's console the cloth's springs.
 	/// </summary>
 	private void DebugSprings () {
-		foreach (Spring s in springs) {
+		foreach (ClothSpring s in springs) {
 			Debug.Log (s);
 		}
 	}
@@ -334,7 +333,7 @@ public class MassSpringCloth : MonoBehaviour {
 	/// Prints in Unity's console the cloth's triangles.
 	/// </summary>
 	private void DebugTriangles () {
-		foreach (NodeTriangle t in triangles) {
+		foreach (ClothNodeTriangle t in triangles) {
 			Debug.Log (t);
 		}
 	}
@@ -354,7 +353,7 @@ public class MassSpringCloth : MonoBehaviour {
 				break;
 
 			case ClothSimulationParameters.FlexionSimulation.FaceOrientation:
-				foreach (KeyValuePair<Edge<int>, NodeTriangle> entry in edgesFlexion) {
+				foreach (KeyValuePair<Edge<int>, ClothNodeTriangle> entry in edgesFlexion) {
 					Debug.Log (entry.Key + ": " + entry.Value);
 				}
 				break;

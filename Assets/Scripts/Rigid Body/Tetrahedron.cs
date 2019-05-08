@@ -241,7 +241,7 @@ public class Tetrahedron {
 	/// Said string.
 	/// </returns>
 	public override string ToString () {
-		return string.Format ("Mass: {0}, Volume: {1}, Nodes:\n\t{2},\n\t{3},\n\t{4},\n\t{5}.",
+		return string.Format ("Tetrahedron with Mass = {0}, Volume = {1}, Nodes =\n\t{2},\n\t{3},\n\t{4},\n\t{5}\n",
 			mass, volume, n1, n2, n3, n4);
 	}
 }

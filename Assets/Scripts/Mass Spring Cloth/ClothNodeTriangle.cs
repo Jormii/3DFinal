@@ -10,8 +10,8 @@ public class ClothNodeTriangle : NodeTriangle {
     /// <summary>
     /// Dictionary that stores a NodeTriangle reference as key that maps the angle the normals of this triangle and the key's make.
     /// </summary>
-    public Dictionary<NodeTriangle, float> theta0;
-    public List<Edge<Node>> edges;
+    public Dictionary<ClothNodeTriangle, float> theta0;
+    public List<Edge<ClothNode>> edges;
 
     /// <summary>
     /// Initializes a NodeTriangle instance.
@@ -28,14 +28,14 @@ public class ClothNodeTriangle : NodeTriangle {
     /// <param name="simParams">
     /// A reference to an instance that holds the parameters of the simulation.
     /// </param>
-    public ClothNodeTriangle (Node n1, Node n2, Node n3, ClothSimulationParameters simParams):
+    public ClothNodeTriangle (ClothNode n1, ClothNode n2, ClothNode n3, ClothSimulationParameters simParams):
         base (n1, n2, n3, simParams) {
-            this.normal = CalculateNormal ();   // ¿Constructor padre?
-            this.theta0 = new Dictionary<NodeTriangle, float> ();
-            this.edges = new List<Edge<Node>> {
-                new Edge<Node> (n1, n2, n3),
-                new Edge<Node> (n1, n3, n2),
-                new Edge<Node> (n2, n3, n1)
+            this.normal = CalculateNormal (); // ¿Constructor padre?
+            this.theta0 = new Dictionary<ClothNodeTriangle, float> ();
+            this.edges = new List<Edge<ClothNode>> {
+                new Edge<ClothNode> (n1, n2, n3),
+                new Edge<ClothNode> (n1, n3, n2),
+                new Edge<ClothNode> (n2, n3, n1)
             };
         }
 
@@ -49,9 +49,9 @@ public class ClothNodeTriangle : NodeTriangle {
     /// This method is designed to work with .mesh files.
     /// </remarks>
     public override Vector3 CalculateNormal () {
-        Vector3 n1Normal = ((ClothNode)n1).normal;
-        Vector3 n2Normal = ((ClothNode)n2).normal;
-        Vector3 n3Normal = ((ClothNode)n3).normal;
+        Vector3 n1Normal = ((ClothNode) n1).normal;
+        Vector3 n2Normal = ((ClothNode) n2).normal;
+        Vector3 n3Normal = ((ClothNode) n3).normal;
         return (n1Normal + n2Normal + n3Normal).normalized;
     }
 
@@ -61,7 +61,7 @@ public class ClothNodeTriangle : NodeTriangle {
     /// <param name="t">
     /// A neighbour triangle.
     /// </param>
-    public void AddNeighbour (NodeTriangle t) {
+    public void AddNeighbour (ClothNodeTriangle t) {
         float angle = Vector3.Angle (normal, t.normal);
         theta0.Add (t, angle);
     }
@@ -72,14 +72,14 @@ public class ClothNodeTriangle : NodeTriangle {
     public new void ComputeForce () {
         // Flexion force. If simParams.useFlexionSprings is true, dictionary will be empty.
         Vector3 force = Vector3.zero;
-        float flexionSpringStiffness = ((ClothSimulationParameters)simParams).flexionSpringStiffness;
-        foreach (KeyValuePair<NodeTriangle, float> entry in theta0) {
-            NodeTriangle t = entry.Key;
+        float K = ((ClothSimulationParameters) simParams).K;
+        foreach (KeyValuePair<ClothNodeTriangle, float> entry in theta0) {
+            ClothNodeTriangle t = entry.Key;
             t.normal = t.CalculateNormal ();
 
             float _theta0 = theta0[t];
             float theta = Vector3.Angle (normal, t.normal);
-            float energy = 0.5f * flexionSpringStiffness * (float) System.Math.Pow (theta - _theta0, 2);
+            float energy = 0.5f * K * (float) System.Math.Pow (theta - _theta0, 2);
 
             Vector3 flexionForce = -CalculateHessian (t) * energy;
             force += flexionForce;
@@ -93,8 +93,8 @@ public class ClothNodeTriangle : NodeTriangle {
         base.ComputeForce ();
     }
 
-    private Vector3 CalculateHessian (NodeTriangle t) {
-        Edge<Node> commonEdge = FindCommonEdge ((ClothNodeTriangle)t);
+    private Vector3 CalculateHessian (ClothNodeTriangle t) {
+        Edge<ClothNode> commonEdge = FindCommonEdge (t);
         if (commonEdge == null) {
             return Vector3.zero;
         }
@@ -130,8 +130,8 @@ public class ClothNodeTriangle : NodeTriangle {
         return (2.0f * t.area) / b;
     }
 
-    private Edge<Node> FindCommonEdge (ClothNodeTriangle t) {
-        foreach (Edge<Node> e in t.edges) {
+    private Edge<ClothNode> FindCommonEdge (ClothNodeTriangle t) {
+        foreach (Edge<ClothNode> e in t.edges) {
             if (edges.Contains (e)) {
                 return e;
             }
@@ -147,10 +147,10 @@ public class ClothNodeTriangle : NodeTriangle {
     /// </returns>
     public override string ToString () {
         string str = "Neighbour triangles:\n";
-        foreach (KeyValuePair<NodeTriangle, float> entry in theta0) {
+        foreach (KeyValuePair<ClothNodeTriangle, float> entry in theta0) {
             str += "Theta 0: " + entry.Value + "\n\t" + entry.Key.n1 + "\n\t" + entry.Key.n2 + "\n\t" + entry.Key.n3 + "\n";
         }
-        return "Normal: " + normal + ", Area: " + area + ", Nodes: {\n\t" + n1 + "\n\t" + n2 + "\n\t" + n3 + "\n}\n" + str;
+        return "Normal = " + normal + ", Area = " + area + ", Nodes = {\n\t" + n1 + "\n\t" + n2 + "\n\t" + n3 + "\n}\n" + str;
     }
 
 }

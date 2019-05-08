@@ -27,7 +27,7 @@ public class ClothNode : Node {
     /// <param name="simParams">
     /// A reference to the instance that holds the parameters of the simulation.
     /// </param>
-    public ClothNode (int id, Vector3 worldPosition, Vector3 normal, bool isFixed, SimulationParameters simParams):
+    public ClothNode (int id, Vector3 worldPosition, Vector3 normal, bool isFixed, ClothSimulationParameters simParams):
         base (id, worldPosition, isFixed, simParams) {
             this.normal = normal.normalized;
         }
@@ -54,7 +54,7 @@ public class ClothNode : Node {
         }
         idsString += " ]";
 
-        return string.Format ("Pos: {0}, Vel: {1}, F: {2}, N: {3}, isFixed: {4}, Ids: {5}",
+        return string.Format ("Pos = {0}, Vel = {1}, F = {2}, N = {3}, isFixed = {4}, Ids = {5}",
             pos, vel, force, normal, isFixed, idsString);
     }
 }

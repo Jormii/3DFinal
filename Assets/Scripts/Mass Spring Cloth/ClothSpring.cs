@@ -24,7 +24,7 @@ public class ClothSpring : Spring {
 	/// <param name="simParams">
 	/// A reference to the instance that holds the simulation parameters.
 	/// </param>
-	public ClothSpring (Node nodeA, Node nodeB, bool isFlexionSpring, ClothSimulationParameters simParams):
+	public ClothSpring (ClothNode nodeA, ClothNode nodeB, bool isFlexionSpring, ClothSimulationParameters simParams):
 		base (nodeA, nodeB, simParams) {
 			this.isFlexionSpring = isFlexionSpring;
 		}
@@ -60,7 +60,7 @@ public class ClothSpring : Spring {
 		float flexionSpringStiffness = ((ClothSimulationParameters) simParams).flexionSpringStiffness;
 		float stiffness = (isFlexionSpring) ? flexionSpringStiffness : tractionSpringStiffness;
 
-		return string.Format ("Spring with L0 = {0}, k = {1}, Flexion = {2} connecting nodes:\n{3}\nAND\n{4}",
+		return string.Format ("ClothSpring with L0 = {0}, k = {1}, isFlexionSpring = {2} connecting nodes:\n\t{3}\n\t{4}",
 			length0, stiffness, isFlexionSpring, nodeA, nodeB);
 	}
 

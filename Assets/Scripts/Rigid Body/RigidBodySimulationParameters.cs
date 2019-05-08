@@ -9,7 +9,8 @@ using UnityEngine;
 public class RigidBodySimulationParameters : SimulationParameters {
 
 	[Header ("Rigid body specific parameters")]
-	public float density = 1.0f; // Changing this value during the simulation has no effect
+	[Tooltip("Changing this value during the simulation has no effect")]
+	public float density = 1.0f;
 	public float elasticEnergyDensity = 3200.0f;
 	public bool debugTetrahedrons = false;
 

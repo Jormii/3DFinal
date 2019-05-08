@@ -27,7 +27,7 @@ public class RigidBodyNode : Node {
     /// <param name="simParams">
     /// A reference to the instance that holds the parameters of the simulation.
     /// </param>
-    public RigidBodyNode (int id, Vector3 worldPosition, bool isFixed, SimulationParameters simParams):
+    public RigidBodyNode (int id, Vector3 worldPosition, bool isFixed, RigidBodySimulationParameters simParams):
         base (id, worldPosition, isFixed, simParams) {
             this.mass = 0.0f;
         }
@@ -53,7 +53,7 @@ public class RigidBodyNode : Node {
         }
         idsString += " ]";
 
-        return string.Format ("Pos: {0}, Vel: {1}, F: {2}, isFixed: {3}, Ids: {4}",
-            pos, vel, force, isFixed, idsString);
+        return string.Format ("RigidBodyNode with Pos = {0}, Vel = {1}, F = {2}, Mass = {3}, isFixed = {4}, Ids = {5}",
+            pos, vel, force, mass, isFixed, idsString);
     }
 }

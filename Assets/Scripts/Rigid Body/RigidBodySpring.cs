@@ -24,7 +24,7 @@ public class RigidBodySpring : Spring {
 	/// <param name="simParams">
 	/// A reference to the instance that holds the simulation parameters.
 	/// </param>
-	public RigidBodySpring (Node nodeA, Node nodeB, float volume, SimulationParameters simParams):
+	public RigidBodySpring (RigidBodyNode nodeA, RigidBodyNode nodeB, float volume, RigidBodySimulationParameters simParams):
 		base (nodeA, nodeB, simParams) {
 			this.volume = volume;
 		}
@@ -53,7 +53,7 @@ public class RigidBodySpring : Spring {
 	public override string ToString () {
 		float k = ((RigidBodySimulationParameters) simParams).elasticEnergyDensity;
 
-		return string.Format ("Spring with L0 = {0}, V = {1}, ε = {2}, connecting nodes:\n{3}\nAND\n{4}",
+		return string.Format ("RigidBodySpring with L0 = {0}, V = {1}, ε = {2}, connecting nodes\n\t{3}\n\t{4}",
 			length0, volume, k, nodeA, nodeB);
 	}
 

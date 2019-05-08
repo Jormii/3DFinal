@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// A class that defines a triangle of the MassSpringCloth mesh.
+/// A class that defines a triangle of the RigidBody thetrahedron mesh.
 /// </summary>
 public class RigidBodyNodeTriangle : NodeTriangle {
 
@@ -22,7 +22,7 @@ public class RigidBodyNodeTriangle : NodeTriangle {
     /// <param name="simParams">
     /// A reference to an instance that holds the parameters of the simulation.
     /// </param>
-    public RigidBodyNodeTriangle (Node n1, Node n2, Node n3, RigidBodySimulationParameters simParams):
+    public RigidBodyNodeTriangle (RigidBodyNode n1, RigidBodyNode n2, RigidBodyNode n3, RigidBodySimulationParameters simParams):
         base (n1, n2, n3, simParams) {
             this.normal = CalculateNormal ();
         }
@@ -50,7 +50,7 @@ public class RigidBodyNodeTriangle : NodeTriangle {
     /// Said string.
     /// </returns>
     public override string ToString () {
-        return "Normal: " + normal + ", Area: " + area + ", Nodes: {\n\t" + n1 + "\n\t" + n2 + "\n\t" + n3 + "\n}";
+        return "RigidBodyNodeTriangle:\nNormal = " + normal + ", Area = " + area + ", Nodes =\n\t" + n1 + "\n\t" + n2 + "\n\t" + n3 + "\n";
     }
 
 }

@@ -15,9 +15,10 @@ public class ClothSimulationParameters : SimulationParameters {
 
 	[Header ("Cloth specific parameters")]
 	public float nodeMass = 1.0f;
+	[Tooltip("Changing this value during the simulation has no effect")]
 	public FlexionSimulation flexionSimulation = FlexionSimulation.Springs;
 	public float tractionSpringStiffness = 1600.0f;
 	public float flexionSpringStiffness = 160.0f;
-	public float K = 0.0005f;	// Orientacion
+	public float K = 0.0005f;	// For FlexionSimulation.FaceOrientation
 
 }
