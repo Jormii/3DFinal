@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{5F2BEAE7-191D-6073-4C53-1F9E58847707}</ProjectGuid>
+    <ProjectGuid>{EF40BEE3-254E-0C26-315D-C90468D0867A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -81,10 +81,10 @@
      <None Include="Assets\Shaders\Double Sided Shaders\Double Sided Standard Diffuse Bump.shader" />
      <None Include="Assets\Shaders\Double Sided Shaders\Double Sided Transparent Diffuse Bump.shader" />
  <Reference Include="UnityEditor.StandardEvents">
- <HintPath>/home/jorge/Escritorio/Universidad/3D/Parte 3/Practica Final/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+ <HintPath>/home/jorge/Escritorio/Universidad/3D/3DFinal/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>/home/jorge/Escritorio/Universidad/3D/Parte 3/Practica Final/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>/home/jorge/Escritorio/Universidad/3D/3DFinal/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>/home/jorge/Unity/Hub/Editor/2018.1.5f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
